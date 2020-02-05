@@ -14,6 +14,10 @@
   - Eventually, interviewer gave hint and affirmed that recursive trees should be part of the solution, though I did not get much farther than that
   - Overall, feel like this did question did not go well
 
+#### Take Away
+
+- Think I should try solving an algo where I have to build of a tree of choices (CS Dojo reviews a problem where you have to do so I believe, Robbing Houses?) - may have to implement memoization?
+
 ### Behavioral
 
 - Was asked to give my pitch - I feel like I kind of rambled a bit at the WVA being old-fashioned part and about how I got into programming because of it
