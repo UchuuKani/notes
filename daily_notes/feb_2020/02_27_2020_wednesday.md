@@ -9,7 +9,7 @@
 - Move Zeroes (faster than O(n) possible?)
 - Min Stack
 
-- Decode String (I didn't attempt yet but someone did)
+- Decode String (I didn't attempt yet but someone did - turns out it was just me and Peter trying to translate one of the Discussion solutions from Java to JS)
 
 ## Flatten Linked List Iterative Solution
 
