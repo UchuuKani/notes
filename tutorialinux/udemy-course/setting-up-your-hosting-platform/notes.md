@@ -1,165 +1,97 @@
-# Your First Linux Server
+# Setting Up Your Hosting Platform
 
-These are notes for the second module in the course - sections will be divided by the subheadings as seen in the section, e.g. `Linux Command Line: The Absolute Basics`
+Will configure core services and end up with a platform ready for running modern php web apps. Among these services are
 
----
+- web server (nginx)
+- interpreter (php + php-fpm)
+- database (mysql)
 
-## Connecting to Your Server: Basic SSH
+Also will cover the following skills:
 
-SSH works with a client-server protocol. To connect to the VM we provisioned, can use SSH.
+- text editing in cli
+- linux users + groups
+- how http and modern web applications work
+- unix interprocess communication
+- how relational databases work
 
-Note that in linux, remember that a bash prompt has a string like `username@host-name` is how bash tells you which machine you're on. Run ssh command as follows (note that anything in `< >` is placeholder):
+Note these resources linked with the vid:
 
-`ssh root@<machine ip>`
-
-Will see below when first logging in. For now, just accept the prompt (maybe read about ssh later)
-
-```bash
-The authenticity of host '64.225.49.126 (64.225.49.126)' can't be established.
-ECDSA key fingerprint is SHA256:BpbJ/mzhZznITiWWMx+OombJFtXspSbmxzga/ZQUKPE.
-Are you sure you want to continue connecting (yes/no/[fingerprint])?
-```
-
-after accepting the prompt, I was exited, but video was prompted for password. I just ran ssh command again and was asked for root password, and was able to log in. Another discrepancy found is that video was immediately prompted to change root pass, whereas I was not. For now, just keeping same root password.
+- https://github.com/groovemonkey/hands_on_linux-self_hosted_wordpress_for_linux_beginners/blob/master/1-advanced-command-line.md
+- https://learnxinyminutes.com/docs/bash/
+- http://tiswww.case.edu/php/chet/bash/bashref.html
 
 ---
 
-## Updating and Installing Software on Ubuntu
+## Advanced Bash Shell Usage
 
-Note, this resource was included with video: `https://github.com/groovemonkey/hands_on_linux-self_hosted_wordpress_for_linux_beginners/blob/master/2-Installing-software-hosting-platform.md`
+- `ls -a` - list all contents in directory including hidden files
 
-In general, most software is compiled from source code into a binary and then that binary is able to be run on a machine. Most modern linux distros have servers that host precompiled binaries so users don't have to compile the source code themselves. There are some distros which make users compile software themselves, but Ubuntu is not one of them
+### Output Redirection
 
-Precompiled packages of software are called repositories. In other words, collections of compiled binaries are called repositories or repos in this context.
+Can redirect stout (I think this is the term?) into a file by using the `>` in bash, e.g.
 
-### Updating Software on Ubuntu
+`echo "henlo world" > greeting.txt` - will create the `greeting.txt` file if not already created, and write `henlo world` to it. However, if `greeting.txt` already exists and has text, this command will overwrite it
 
-Need root access to update and install software, so will be using `sudo`. The `apt` program in Debian-based distos is used to update the repository listing and upgrade software
+To append to `greeting.txt`, we have to use `>>`, e.g. `echo "more henloooo" >> greeting.txt` will append the echo'd text to the file
 
-- `apt update` - fetches updates/can see what software has been updated since this command was last ran
-- `apt upgrade` - upgrades binaries on your system with new versions from repositories. Can add a `-y` flag to upgrade and automatically selecting `yes` for prompts
+Can also take input from a file by using the `<` symbol, e.g. `mail -s "important greetings" dave@tutorialinux.com < greeting.txt`
 
-### Installing New Software
+- this will email with the subject `important greetings` to `dave@tutorialinux.com` with the message body taken from `greeting.txt`
 
-A few commands to know for this:
+There is a program, `date` that we can invoke from the command line which prints out the current timestamp like so:
 
-- `apt install <software name>` - to install new software
-- `apt remove <software name>` - to remove software
-- `apt-cache search <search keyword>` - searches for software that can be downloaded from a repository
+- `date` -> `Sun 27 Dec 2020 08:39:36 PM EST`
 
-Note: can use `ctrl + w` to delete previous word in command line
+We can actually invoke the `date` command as part of input passed to `echo` that gets evaluated, e.g.
 
-Note: instead of how software you installed in Windows must be updated individually, in linux any software installed with a package manager gets upgraded automatically when running `apt upgrade command`
+- `echo "$(/bin/date) - hi there" >> greeting.txt`
+  - here, anything in the `$()` gets evaluated - also note, we used the full path to the `date` program and so did the video. However, just running `$(date)` also works
+  - as a more robust way of determining the absolute path to a program, can run the `which` program
+    - `which date` -> `/bin/date`
 
----
+The `$()` syntax is called command substitution. Can also nest them like so:
 
-## Installing Required Software for our Hosting Platform
+- `echo "$($(which date)) into the date nao" >> test.txt` -> `Sun 27 Dec 2020 08:59:03 PM EST into the date nao`
 
-Core software we'll be installing to run our Wordpress server/hosting platform:
+### Logical Operators
 
-- mysql-server
-- php-mysql
-- php-fpm
-- monit - for monitoring
-- nginx
+Have access to `&&` and `||` logical operators in bash as well - examples of falsey values that can evaluate to boolean false are errors, such as trying to use a non-existent command, or trying to invoke a command that requires `sudo` privilege with `sudo`. I guess anything that outputs to sterr (standard error)?
 
-Also will talk about custom repositories. You can add personal software repos (aka PPAs)
+- then again, I don't really understand output/input/error streams
 
-First we ssh into our vps and run `apt update` and `apt upgrade` to install any out of date software, then run `apt install` command to first install `mysql-server`, then also `nginx php-mysql php-fpm monit` - note that it seems commands and methods of installing the software seem to vary slightly between video and included github repo resource of the video, probably because things have changed since the course was first released
+### grep
 
-Note, `mysql-server` will prompt you for a password during installation. For now, can use a simple password, because in the next lesson we'll "harden" permissions a bit for more security (probably)
+very useful for parsing text, makes use of regular expressions :pensive:
 
-- actually, just installing `mysql-server` didn't prompt me for anything when I installed. Curious...
-- also note that, as part of the installs going on, Ubuntu starts some of the software processes
-
-### Custom Repositories
-
-As mentioned previously, probably not going to install software from a PPA myself in this lesson as the Github resource for this section installs `nginx` directly from the repository instead of adding a PPA for nginx, but will still highlight how the process works here
-
-We can add third-party repositories ourself by running (with `nginx` repo as an example here):
-
-- `add-apt-repository ppa:nginx/stable`
-- `apt update`
-- `apt install nginx`
-
-During this process, the cryptographic key for the repo will be downloaded and imported. Basically means a malicious third-party can't uploaded a malicious nginx package/binary as the server/machine we are working on will check to make sure the package has been signed by the developers themselves
-
-After installing nginx, can run command `netstat -tupln` to see that nginx is started and running on port 80
-
-- had to first install `netstat` by running `apt install net-tools`
-
-After nginx is up, we can actually visit the live server by entering its IP address into a browser. Can get the IP of our vps that we are ssh'd into by running `ifconfig` and looking for the `inet` field under `eth0` section (no idea what any of this really means right now)
+along with `grep`, usage of piping using the `|` character is very useful
 
 ---
 
-## Linux Services Overview
+## How Configuration Files Work in Linux
 
-In this lesson, going to discuss software, services and daemons. Also going to enable and activate all the services necessary for setting up our wordpress hosting platform and website
+In Linux, most configuration files are in `/etc/<programName>`. Config files allow you to change application defaults, and can be overriden by command line arguments. In our case, our web server will need to be configured to talk with our php interpreter, the php interpreter will need to know how to talk to our database, and wordpress will need to know which database credentials to use and the database name
 
-- software: a program, running as a `process` on your OS
-- service/daemon: a long running process that provides a service, usually designed to interact with something outside of it, e.g. web server, monitoring tool, database
+We'll look at some configuration files, first starting with `ssh`: found at `/etc/ssh/sshd_config`
 
-Main way to manage services is by using `systemd` command. Two utility programs to manage services with systemd are:
+### ssh config
 
-- `systemctl` for managing services
-- `journalctl` for managing logs
+the `d` in `sshd_config` stand for daemon. We use `less` to read from the config on our VPS
+
+- `less` will automatically put us at the top of the file, and we can move throughout it. Can also use a case-sensitive search by typing `/` followed by text to search for
+
+Some observations:
+
+- default port for ssh is `22`
+- `PermitRootLogin` - set to `no` by default. If set to `yes`, prevents `root` from logging in through ssh
+- `PublicKeyAuthentication` set to `yes` by default, allows you to stop using passwords to log in (something we want to do as it is more secure than using a password, and will get around to before end of course) - I already set this up because seeing random people trying to connect with `journalctl` was freaking me out
+
+### nginx config
+
+Looking at `/etc/nginx/nginx.conf` with less. Some observations:
+
+- `user` (that our web process runs as) - www-data
+- `worker_processes` - set to auto by default. Ideally would be equal to number of virtual cores that the server can see?
 
 ---
 
-## Service Management with systemd
-
-With services, can start, restart, reload configuration files, or stop the service
-
-- also can enable or disable them at boot time (unrelated to starting or stopping at the moment)
-
-`systemd` is the modern way to handle this, but for some machines this might not be available so will also see how to use the older method of doing so
-
-command looks like `systemctl status <service name>`. In older distros, don't have access to systemctl so have to use the `service` command. Command looks like `servoce <service name> status`
-
-We will start a few services in our VPS:
-
-- `mysql`
-- `nginx`
-- `monit`
-- `php-fpm`
-
-Note, before even doing anything in my case, all of these were already active besides `php-fpm`. For this service, can't seem to start it by running `systemctl start php-fpm` - get error: `Failed to start php-fpm.service: Unit php-fpm.service not found.` - thought maybe have to specify a version like `php5-fpm` like video does, but so far have not found any version of php that starts the service like so: `php<ver number>-fpm` (this is as of 12/26/2020)
-
-- went and ran `cat /etc/init.d/php7.4-fpm`, per answer here: `https://serverfault.com/questions/189940/how-do-you-restart-php-fpm` to see contents of `/etc/init.d/php7.4-fpm` and saw that there was a name `php7.4-fpm` - tried running `systemctl start php7.4-fpm` and seems the service was started!
-- ran `status php7.4-fpm` and saw the service was started
-
-Note, starting a service does not "enable" it - starting starts the service in this moment, while `enable` tells the service to start at boot time
-
-- `start` and `stop`
-- `enable` and `disable`
-
-For our wordpress stack, want to make sure the following services are enabled:
-
-- mysql
-- nginx
-- php7.4-fpm
-- monit
-
-Some `systemctl` commands we can run:
-
-- enable - makes sure this unit always starts at boot
-- disable - opposite of enable
-- start - starts this unit now (will not automatically start at boot)
-- stop - stops a running unit (will not prevent from running at boot, if enabled)
-- reload - re-read the program configuration file (config updates)
-- restart - kill the process and start it again, re-reading from configuration file
-- status - check status of unit, show last few lines of log output
-
-Some `journalctl` commands we can try out:
-
-- `journalctl -xn`
-- `journalctl -u <unit>`
-- `journalctl -b`
-- `journalctl -f`
-- `journalctl --since "10 min ago"`
-
-Running some of these commands on my VPS made it apparent people/bots (Whichever) are trying to constantly log into my server. Investigating how to set up ssh key-based auth for my VPS instead of a regular password
-
-- https://www.digitalocean.com/community/tutorials/how-to-configure-ssh-key-based-authentication-on-a-linux-server
-- https://www.digitalocean.com/community/tutorials/how-to-set-up-ssh-keys-on-ubuntu-20-04
-  - set up ssh key login for VPS using above article
+## Creating a System User: Linux Users and Groups
