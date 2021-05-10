@@ -96,4 +96,43 @@ Looking at `/etc/nginx/nginx.conf` with less. Some observations:
 
 ## Creating a System User: Linux Users and Groups
 
-Test
+Can use the `adduser` command to interactively add a user
+
+- can use `useradd` command to add a user without interaction. Can specify things such as user id, group id, default shell, etc using flags
+
+--
+
+## Changing Ownership and Permissions
+
+- 0 = nothing
+- 1 = execute
+- 2 = write
+- 4 = read
+
+- 0 = no permissions
+- 1 = execute only
+- 2 = write only
+- 3 = write/execute
+- 4 = read only
+- 5 = read/execute
+- 6 = read/write
+- 7 = read/write/execute
+
+---
+
+## Basic nginx Webserver Configuration
+
+We will make a backup of /etc/nginx/nginx.conf by renaming it as /etc/nginx/nginx.conf.ORIG, then will create a new one as nginx.conf
+
+- this is the main nginx config file. For each site we run, will have a specific file
+- there is a line in this file in the `http` block which specifies where we will put all our site-specific config files: `include /etc/nginx/conf.d/*.conf;`
+
+Tutorial mentions a directive for fastcgi caching which doesn't seem to be part of the default `nginx.conf` file at present (May 2021) at `/usr/share/nginx/cache/fcgi`, but will make the directory anyway - maybe I will add this caching later
+
+- command is: `mkdir -p /usr/share/nginx/cache/fcgi`
+
+Can use `nginx -t` command to validate the nginx config file. After this, can reload nginx using systemd: `systemctl reload nginx`
+
+---
+
+## HTTP Basics
