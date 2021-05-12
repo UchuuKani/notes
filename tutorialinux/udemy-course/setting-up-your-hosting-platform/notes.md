@@ -136,3 +136,65 @@ Can use `nginx -t` command to validate the nginx config file. After this, can re
 ---
 
 ## HTTP Basics
+
+What even are headers
+
+---
+
+## Basic php-fpm configuration
+
+Follow this (from course files) instead of video
+
+- https://github.com/groovemonkey/hands_on_linux-self_hosted_wordpress_for_linux_beginners/blob/master/5-basic-phpfpm-and-php-configuration.md
+
+We set up our php interpreter to handle requests that need to run php code
+
+Need to install:
+
+- php7.4-json - done -> remove and add php-json
+- php7.4-xmlrpc - done -> remove and add php-xmlrpc - removed
+- php7.4-curl - done -> remove and add php-curl - removed
+- php7.4-gd - done -> remove and add php-gd - removed
+- php-xml-rss - can't find. is this totally needed?
+- add `php-xml`, `php-mbstring`
+
+Then, create directory for php-fpm sockets (webserver -> php): `mkdir /run/php-fpm`
+
+Then make sure directory for php-fpm pool configuration exists: `mkdir -p /etc/php7.4/fpm/pool.d` (in my case, `/etc/php/7.4/fpm/pool.d/` already exists so don't run command)
+
+- essentially, we have a pool of php processes that can handle requests that need to run php code since we don't want to only have one running process to process those requests
+
+Then create our default pool configuration in: `/etc/php/7.4/fpm/pool.d/www.conf`
+
+- remove this file, then create a new www.conf file with content:
+
+```
+[default]
+security.limit_extensions = .php
+listen = /run/php/yourserverhostname.sock
+listen.owner = www-data
+listen.group = www-data
+listen.mode = 0660
+user = www-data
+group = www-data
+pm = dynamic
+pm.max_children = 75
+pm.start_servers = 8
+pm.min_spare_servers = 5
+pm.max_spare_servers = 20
+pm.max_requests = 500
+```
+
+Then edit our top-level php config files:
+
+- first create a backup `mv /etc/php/7.4/fpm/php.ini /etc/php/7.4/fpm/php.ini.ORIG`
+- then edit the file `nano /etc/php/7.4/fpm/php.ini`
+  - note the `cgi.fix_pathinfo=0` - tells php to not try to guess at incorrect php file names that get requested
+
+Overview: we installed php extensions to run a basic Wordpress site, verified our php-fpm socket directory exists that nginx and php-fpm will use to communicate, created main php-fpm config file and default pool config file, and configured php itself
+
+Finally, restart php-fpm process using systemctl: `systemctl restart php7.4-fpm`
+
+---
+
+## Interprocess Communication (IPC) and UNIX/Linux Filetypes
