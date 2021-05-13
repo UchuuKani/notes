@@ -198,3 +198,24 @@ Finally, restart php-fpm process using systemctl: `systemctl restart php7.4-fpm`
 ---
 
 ## Interprocess Communication (IPC) and UNIX/Linux Filetypes
+
+No commands being run - describes Unix socket file
+
+---
+
+## How Relational Databases Work
+
+No commands being run - describes basic RDBMS concepts
+
+---
+
+## MySQL Database Setup and Security
+
+Following instructions at: https://github.com/groovemonkey/hands_on_linux-self_hosted_wordpress_for_linux_beginners/blob/master/6-set-up-mysql-database.md
+
+- output a password using `echo -n @ && cat /dev/urandom | env LC_CTYPE=C tr -dc [:alnum:] | head -c 15 && echo`
+  - echo out an `@`, cat /dev/urandom, pipe output to idk how that works, pipe output to take first 15 characters
+
+Then run mysql secure installation script `/usr/bin/mysql_secure_installation` - answer `y` to questions
+
+Then restart mysql service `systemctl restart mysql` - not totally necessary, but good practice when working with services
