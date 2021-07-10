@@ -4,7 +4,7 @@ We will:
 
 - create an nginx vhost config file: /etc/nginx/conf.d/yoursitename.conf
 - disable default nginx vhost
-- create php-fpm vhost pool config file: /etc/php7.4/fpm/pool.d/yoursitename.conf (maybe outdated? directory?)
+- create php-fpm vhost pool config file: /etc/php/7.4/fpm/pool.d/yoursitename.conf (maybe outdated? directory?)
 - create log file: /home/yourusername/logs/phpfpm.log
 - create database + DB user
 - install Wordpress
